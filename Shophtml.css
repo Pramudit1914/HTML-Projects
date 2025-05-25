@@ -1,0 +1,14 @@
+body {
+    background-image:url("Pizza!.avif");
+    background-size:cover;
+    background-position:center;
+}
+button {
+    height:1000px;
+    width:1000px;
+    opacity:0;
+    pointer-events:auto;
+}
+button:hover {
+    cursor:pointer;
+}
