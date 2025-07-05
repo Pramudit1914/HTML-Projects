@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Student Management System</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+    }
+
+    .sidebar {
+      width: 220px;
+      height: 100vh;
+      background-color: #124d50;
+      color: white;
+      position: fixed;
+      top: 0;
+      left: 0;
+      padding: 20px;
+    }
+
+    .sidebar h2 {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .sidebar a {
+      display: block;
+      color: white;
+      padding: 10px;
+      margin: 10px 0;
+      text-decoration: none;
+      background-color: #195c5f;
+      border-radius: 5px;
+    }
+
+    .sidebar a.active,
+    .sidebar a:hover {
+      background-color: #0f3f42;
+    }
+
+    .main-content {
+      margin-left: 240px;
+      padding: 30px;
+    }
+
+    .card {
+      background-color: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    .add-btn {
+      background-color: #2e8c74;
+      color: white;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      cursor: pointer;
+      margin-bottom: 15px;
+    }
+
+    .add-btn:hover {
+      background-color: #257260;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 12px;
+      border-bottom: 1px solid #ddd;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f1f1f1;
+    }
+
+    .actions a {
+      margin-right: 10px;
+      color: #007bff;
+      cursor: pointer;
+    }
+
+    .actions a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="sidebar">
+    <h2>MPSMS</h2>
+    <a href="#" class="active">Students</a>
+    <a href="MStudents.html">Teachers</a>
+    <a href="MClasses.html">Classes</a>
+    <a href="MReports.html">Reports</a>
+    <a href="#">Settings</a>
+  </div>
+
+  <div class="main-content">
+    <h1>MPS Student Management System</h1>
+    <div class="card">
+      <button class="add-btn" id="addStudentBtn">+ Add Student</button>
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Grade</th>
+            <th>Section</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="studentTableBody">
+          <tr>
+            <td>1</td>
+            <td>John Doe</td>
+            <td>10</td>
+            <td>A</td>
+            <td class="actions">
+              <a class="edit">Edit</a>
+              <a class="delete">Delete</a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+<script>
+  let studentId = 2;
+
+  const studentTable = document.getElementById("studentTableBody");
+  const addStudentBtn = document.getElementById("addStudentBtn");
+
+  // Load saved students when page loads
+  window.addEventListener("DOMContentLoaded", () => {
+    const saved = JSON.parse(localStorage.getItem("students") || "[]");
+    saved.forEach(student => {
+      addRow(student.id, student.name, student.grade, student.section);
+    });
+    if (saved.length > 0) {
+      studentId = Math.max(...saved.map(s => s.id)) + 1;
+    }
+  });
+
+  addStudentBtn.addEventListener("click", () => {
+    const name = prompt("Enter student's name:");
+    const grade = prompt("Enter grade:");
+    const section = prompt("Enter section:");
+
+    if (!name || !grade || !section) return alert("All fields are required!");
+
+    const newStudent = { id: studentId, name, grade, section };
+    addRow(newStudent.id, name, grade, section);
+    saveStudent(newStudent);
+    studentId++;
+  });
+
+  function addRow(id, name, grade, section) {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${id}</td>
+      <td>${name}</td>
+      <td>${grade}</td>
+      <td>${section}</td>
+      <td class="actions">
+        <a class="edit">Edit</a>
+        <a class="delete">Delete</a>
+      </td>
+    `;
+    studentTable.appendChild(row);
+    attachActions(row);
+  }
+
+  function saveStudent(student) {
+    const students = JSON.parse(localStorage.getItem("students") || "[]");
+    students.push(student);
+    localStorage.setItem("students", JSON.stringify(students));
+  }
+
+  function updateStudent(updatedStudent) {
+    const students = JSON.parse(localStorage.getItem("students") || "[]");
+    const index = students.findIndex(s => s.id === updatedStudent.id);
+    if (index !== -1) {
+      students[index] = updatedStudent;
+      localStorage.setItem("students", JSON.stringify(students));
+    }
+  }
+
+  function deleteStudent(id) {
+    let students = JSON.parse(localStorage.getItem("students") || "[]");
+    students = students.filter(s => s.id !== id);
+    localStorage.setItem("students", JSON.stringify(students));
+  }
+
+  function attachActions(row) {
+    const editBtn = row.querySelector(".edit");
+    const deleteBtn = row.querySelector(".delete");
+
+    editBtn.addEventListener("click", () => {
+      const id = parseInt(row.children[0].textContent);
+      const name = prompt("Edit name:", row.children[1].textContent);
+      const grade = prompt("Edit grade:", row.children[2].textContent);
+      const section = prompt("Edit section:", row.children[3].textContent);
+
+      if (name && grade && section) {
+        row.children[1].textContent = name;
+        row.children[2].textContent = grade;
+        row.children[3].textContent = section;
+
+        updateStudent({ id, name, grade, section });
+      }
+    });
+
+    deleteBtn.addEventListener("click", () => {
+      if (confirm("Delete this student?")) {
+        const id = parseInt(row.children[0].textContent);
+        row.remove();
+        deleteStudent(id);
+      }
+    });
+  }
+</script>
+
+</body>
+</html>

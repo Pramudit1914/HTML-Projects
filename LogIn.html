@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Log in into the website before going</title>
+<link rel="stylesheet" href="LogIn.css">
+</head>
+<body>
+<table>
+    <form onsubmit="handleLogin(event)">
+    <tr><td><h1>Login Into MPSMS</h1></td></tr>
+    <tr><td><input placeholder="Email Address" id="EmailR" required></td></tr>
+    <tr><td><input placeholder="Password" id="PasswordR" required></td></tr>
+    <tr><td><button type="submit" id="Button">Login</button></td></tr>
+    </form>
+    <tr><td><button onclick="togglePassword()">👁</button></td></tr>
+    <tr><td><button onclick="Murruku69()" id="Specialbutton">Forgot Password?</button></td></tr>
+</table>
+<script>
+function Murruku69() {
+    alert("the email is murrukumark69@gmail.com lol")
+    alert("also the password is murruku69420 lol")
+    alert("also no caps lol")
+}
+  function togglePassword() {
+    const passwordField = document.getElementById("PasswordR");
+    const toggleButton = event.target;
+
+    if (passwordField.type === "password") {
+      passwordField.type = "text"
+      toggleButton.textContent = "👁"
+    } else {
+      passwordField.type = "password"
+      toggleButton.textContent = "◡"
+    }
+  }
+
+function handleLogin(event) {
+event.preventDefault()
+let email = document.getElementById("EmailR").value.trim();
+let password = document.getElementById("PasswordR").value.trim();
+if (email==="murrukumark69@gmail.com" && password==="murruku69420") {
+    alert("Heading to website, please wait a while...")
+    window.location.href="MPSMS.html"
+}
+else {
+    alert("Uh oh! It seems that your password, or either the email is incorrect! Fix it by tapping on them and writing the correct email, or password.")
+    alert("If you forgot your password or email, you can press the button that says so!")
+}
+}
+</script>
+</body>
+</html>

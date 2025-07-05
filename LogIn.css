@@ -1,0 +1,49 @@
+body {
+    justify-content:center;
+    text-align:center;
+}
+table {
+      margin: 100px auto;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+      width:500px;
+      height:500px;
+    }
+
+    td {
+      padding: 10px;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+
+    #Button {
+      width: 100%;
+      padding: 10px;
+      background-color: #4c98af;
+      color: white;
+      border: none;
+      border-radius: 999px;
+      cursor: pointer;
+    }
+    #Specialbutton {
+        background-color:white;
+        border: none;
+        cursor: pointer;
+        border-radius: 999px;
+    }
+    #Specialbutton:hover {
+        color:#4040fa;
+        text-decoration: underline;
+    }
+
+    h1 {
+      text-align: center;
+      margin: 0;
+    }
