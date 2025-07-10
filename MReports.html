@@ -103,13 +103,12 @@
     <a href="MStudents.html">Teachers</a>
     <a href="MClasses.html">Classes</a>
     <a href="#" class="active">Reports</a>
-    <a href="#">Settings</a>
   </div>
 
   <div class="main-content">
     <h1>MPS Teacher Management System</h1>
     <div class="card">
-      <button class="add-btn" id="addStudentBtn">+ Add Teacher</button>
+      <button class="add-btn" id="addStudentBtn">Whats going on your mind?</button>
       <table>
         <thead>
           <tr>
@@ -128,56 +127,59 @@
     </div>
   </div>
 
-  <script>
-    const name = "You:"
+<script>
+  const reportTable = document.getElementById("studentTableBody");
+  const addReportBtn = document.getElementById("addStudentBtn");
+  const defaultName = "You:";
 
-    const studentTable = document.getElementById("studentTableBody");
-    const addStudentBtn = document.getElementById("addStudentBtn");
+  // Load reports from localStorage
+  window.addEventListener("DOMContentLoaded", () => {
+    const savedReports = JSON.parse(localStorage.getItem("reports") || "[]");
 
-    addStudentBtn.addEventListener("click", () => {
-      const report = prompt("Enter Report:");
-
-      if (!name || !report) return alert("All fields are required!");
-
-      const row = document.createElement("tr");
-      row.innerHTML = `
-        <td>${name}</td>
-        <td>${report}</td>
-      `;
-      studentTable.appendChild(row);
-      studentId++;
-
-      attachActions(row);
-    });
-
-    // Attach edit/delete to all existing and new rows
-    function attachActions(row) {
-      const editBtn = row.querySelector(".edit");
-      const deleteBtn = row.querySelector(".delete");
-
-      editBtn.addEventListener("click", () => {
-        const cells = row.children;
-        const name = prompt("Edit name:", cells[1].textContent);
-        const grade = prompt("Edit grade:", cells[2].textContent);
-        const section = prompt("Edit section:", cells[3].textContent);
-
-        if (name && grade && section) {
-          cells[1].textContent = name;
-          cells[2].textContent = grade;
-          cells[3].textContent = section;
-        }
-      });
-
-      deleteBtn.addEventListener("click", () => {
-        if (confirm("Delete this student?")) {
-          row.remove();
-        }
-      });
+    if (savedReports.length === 0) {
+      const defaultReport = {
+        name: "John Doe:",
+        report: "Mikku Public School Best school ever???"
+      };
+      localStorage.setItem("reports", JSON.stringify([defaultReport]));
     }
 
-    // Attach actions to default row on load
-    document.querySelectorAll("#studentTableBody tr").forEach(attachActions);
-  </script>
+    refreshReports();
+  });
+
+  function refreshReports() {
+    reportTable.innerHTML = "";
+    const reports = JSON.parse(localStorage.getItem("reports") || "[]");
+    reports.forEach(r => addRow(r.name, r.report, false));
+  }
+
+  function saveReports() {
+    const rows = document.querySelectorAll("#studentTableBody tr");
+    const reportData = [];
+    rows.forEach(row => {
+      const name = row.children[0].textContent;
+      const report = row.children[1].textContent;
+      reportData.push({ name, report });
+    });
+    localStorage.setItem("reports", JSON.stringify(reportData));
+  }
+
+  function addRow(name, report, save = true) {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${name}</td>
+      <td>${report}</td>
+    `;
+    reportTable.appendChild(row);
+    if (save) saveReports();
+  }
+
+  addReportBtn.addEventListener("click", () => {
+    const report = prompt("What's on your mind?");
+    if (!report) return alert("Report cannot be empty.");
+    addRow(defaultName, report);
+  });
+</script>
 
 </body>
 </html>

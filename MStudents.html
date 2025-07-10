@@ -103,7 +103,6 @@
     <a href="#" class="active">Teachers</a>
     <a href="MClasses.html">Classes</a>
     <a href="MReports.html">Reports</a>
-    <a href="#">Settings</a>
   </div>
 
   <div class="main-content">
@@ -136,64 +135,79 @@
     </div>
   </div>
 
-  <script>
-    let studentId = 2;
+<script>
+  let teacherId = 1;
+  const tableBody = document.getElementById("studentTableBody");
+  const addBtn = document.getElementById("addStudentBtn");
 
-    const studentTable = document.getElementById("studentTableBody");
-    const addStudentBtn = document.getElementById("addStudentBtn");
+  // Load teachers on page load
+  window.addEventListener("DOMContentLoaded", () => {
+    const existing = JSON.parse(localStorage.getItem("teachers") || "[]");
 
-    addStudentBtn.addEventListener("click", () => {
-      const name = prompt("Enter Teachers's name:");
-      const grade = prompt("Enter Grade HRT:");
-      const section = prompt("Enter section HRT:");
+    tableBody.innerHTML = "";
+    existing.forEach(teacher => {
+      addRow(teacher.id, teacher.name, teacher.grade, teacher.section, false);
+    });
+  });
 
-      if (!name || !grade || !section) return alert("All fields are required!");
+  function saveTeachers() {
+    const rows = document.querySelectorAll("#studentTableBody tr");
+    const teachers = [];
+    rows.forEach(row => {
+      teachers.push({
+        id: parseInt(row.children[0].textContent),
+        name: row.children[1].textContent,
+        grade: row.children[2].textContent,
+        section: row.children[3].textContent
+      });
+    });
+    localStorage.setItem("teachers", JSON.stringify(teachers));
+  }
 
-      const row = document.createElement("tr");
-      row.innerHTML = `
-        <td>${studentId}</td>
-        <td>${name}</td>
-        <td>${grade}</td>
-        <td>${section}</td>
-        <td class="actions">
-          <a class="edit">Edit</a>
-          <a class="delete">Delete</a>
-        </td>
-      `;
-      studentTable.appendChild(row);
-      studentId++;
+  function addRow(id, name, grade, section, save = true) {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${id}</td>
+      <td>${name}</td>
+      <td>${grade}</td>
+      <td>${section}</td>
+      <td class="actions">
+        <a class="edit">Edit</a>
+        <a class="delete">Delete</a>
+      </td>
+    `;
+    tableBody.appendChild(row);
 
-      attachActions(row);
+    row.querySelector(".edit").addEventListener("click", () => {
+      const newName = prompt("Edit name:", row.children[1].textContent);
+      const newGrade = prompt("Edit grade HRT:", row.children[2].textContent);
+      const newSection = prompt("Edit section HRT:", row.children[3].textContent);
+      if (newName && newGrade && newSection) {
+        row.children[1].textContent = newName;
+        row.children[2].textContent = newGrade;
+        row.children[3].textContent = newSection;
+        saveTeachers();
+      }
     });
 
-    // Attach edit/delete to all existing and new rows
-    function attachActions(row) {
-      const editBtn = row.querySelector(".edit");
-      const deleteBtn = row.querySelector(".delete");
+    row.querySelector(".delete").addEventListener("click", () => {
+      if (confirm("Delete this teacher?")) {
+        row.remove();
+        saveTeachers();
+      }
+    });
 
-      editBtn.addEventListener("click", () => {
-        const cells = row.children;
-        const name = prompt("Edit name:", cells[1].textContent);
-        const grade = prompt("Edit grade HRT:", cells[2].textContent);
-        const section = prompt("Edit section HRT:", cells[3].textContent);
+    if (save) saveTeachers();
+  }
 
-        if (name && grade && section) {
-          cells[1].textContent = name;
-          cells[2].textContent = grade;
-          cells[3].textContent = section;
-        }
-      });
-
-      deleteBtn.addEventListener("click", () => {
-        if (confirm("Delete this Teacher?")) {
-          row.remove();
-        }
-      });
-    }
-
-    // Attach actions to default row on load
-    document.querySelectorAll("#studentTableBody tr").forEach(attachActions);
-  </script>
+  addBtn.addEventListener("click", () => {
+    const name = prompt("Enter teacher's name:");
+    const grade = prompt("Enter grade HRT:");
+    const section = prompt("Enter section HRT:");
+    if (!name || !grade || !section) return alert("All fields required.");
+    addRow(teacherId++, name, grade, section);
+  });
+</script>
 
 </body>
 </html>

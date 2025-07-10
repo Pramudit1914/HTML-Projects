@@ -103,7 +103,6 @@
     <a href="MStudents.html">Teachers</a>
     <a href="#" class="active">Classes</a>
     <a href="MReports.html">Reports</a>
-    <a href="#">Settings</a>
   </div>
 
   <div class="main-content">
@@ -135,61 +134,96 @@
   </div>
 
   <script>
+  const classTable = document.getElementById("studentTableBody");
+  const addClassBtn = document.getElementById("addStudentBtn");
 
-    const studentTable = document.getElementById("studentTableBody");
-    const addStudentBtn = document.getElementById("addStudentBtn");
+  // Load from localStorage
+  window.addEventListener("DOMContentLoaded", () => {
+    const savedClasses = JSON.parse(localStorage.getItem("classes") || "[]");
 
-    addStudentBtn.addEventListener("click", () => {
-      const name = prompt("Enter Class section & grade:");
-      const grade = prompt("Enter Student Count:");
-      const section = prompt("Enter HRT:");
-
-      if (!name || !grade || !section) return alert("All fields are required!");
-
-      const row = document.createElement("tr");
-      row.innerHTML = `
-        <td>${name}</td>
-        <td>${grade}</td>
-        <td>${section}</td>
-        <td class="actions">
-          <a class="edit">Edit</a>
-          <a class="delete">Delete</a>
-        </td>
-      `;
-      studentTable.appendChild(row);
-      studentId++;
-
-      attachActions(row);
-    });
-
-    // Attach edit/delete to all existing and new rows
-    function attachActions(row) {
-      const editBtn = row.querySelector(".edit");
-      const deleteBtn = row.querySelector(".delete");
-
-      editBtn.addEventListener("click", () => {
-        const cells = row.children;
-        const name = prompt("Edit grade&section:", cells[1].textContent);
-        const grade = prompt("Edit Student count:", cells[2].textContent);
-        const section = prompt("Edit HRT:", cells[3].textContent);
-
-        if (name && grade && section) {
-          cells[1].textContent = name;
-          cells[2].textContent = grade;
-          cells[3].textContent = section;
-        }
-      });
-
-      deleteBtn.addEventListener("click", () => {
-        if (confirm("Delete this class?")) {
-          row.remove();
-        }
-      });
+    // Add default class only once if none saved
+    if (savedClasses.length === 0) {
+      const defaultClass = {
+        name: "10-A",
+        count: "35",
+        hrt: "John Doe"
+      };
+      localStorage.setItem("classes", JSON.stringify([defaultClass]));
     }
 
-    // Attach actions to default row on load
-    document.querySelectorAll("#studentTableBody tr").forEach(attachActions);
-  </script>
+    // Refresh table from localStorage
+    refreshClassTable();
+  });
 
+  function refreshClassTable() {
+    classTable.innerHTML = "";
+    const all = JSON.parse(localStorage.getItem("classes") || "[]");
+    all.forEach(c => addRow(c.name, c.count, c.hrt, false));
+  }
+
+  function saveClasses() {
+    const rows = document.querySelectorAll("#studentTableBody tr");
+    const classes = [];
+    rows.forEach(row => {
+      const name = row.children[0].textContent;
+      const count = row.children[1].textContent;
+      const hrt = row.children[2].textContent;
+      classes.push({ name, count, hrt });
+    });
+    localStorage.setItem("classes", JSON.stringify(classes));
+  }
+
+  function addRow(name, count, hrt, save = true) {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${name}</td>
+      <td>${count}</td>
+      <td>${hrt}</td>
+      <td class="actions">
+        <a class="edit">Edit</a>
+        <a class="delete">Delete</a>
+      </td>
+    `;
+    classTable.appendChild(row);
+
+    const editBtn = row.querySelector(".edit");
+    const deleteBtn = row.querySelector(".delete");
+
+    editBtn.addEventListener("click", () => {
+      const newName = prompt("Edit class (e.g. 10-A):", row.children[0].textContent);
+      const newCount = prompt("Edit student count:", row.children[1].textContent);
+      const newHRT = prompt("Edit HRT:", row.children[2].textContent);
+
+      if (newName && newCount && newHRT) {
+        row.children[0].textContent = newName;
+        row.children[1].textContent = newCount;
+        row.children[2].textContent = newHRT;
+        saveClasses();
+      }
+    });
+
+    deleteBtn.addEventListener("click", () => {
+      if (confirm("Delete this class?")) {
+        row.remove();
+        saveClasses();
+      }
+    });
+
+    if (save) saveClasses();
+  }
+
+  addClassBtn.addEventListener("click", () => {
+    const name = prompt("Enter Class (e.g. 10-A):");
+    const count = prompt("Enter Student Count:");
+    const hrt = prompt("Enter HRT (Homeroom Teacher):");
+
+    if (!name || !count || !hrt) {
+      alert("All fields are required!");
+      return;
+    }
+
+    addRow(name, count, hrt);
+  });
+</script>
 </body>
 </html>

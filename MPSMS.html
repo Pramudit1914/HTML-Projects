@@ -103,7 +103,6 @@
     <a href="MStudents.html">Teachers</a>
     <a href="MClasses.html">Classes</a>
     <a href="MReports.html">Reports</a>
-    <a href="#">Settings</a>
   </div>
 
   <div class="main-content">
@@ -137,99 +136,77 @@
   </div>
 
 <script>
-  let studentId = 2;
+let studentId = 1;
+const tableBody = document.getElementById("studentTableBody");
+const addBtn = document.getElementById("addStudentBtn");
 
-  const studentTable = document.getElementById("studentTableBody");
-  const addStudentBtn = document.getElementById("addStudentBtn");
+// Load students on page load
+window.addEventListener("DOMContentLoaded", () => {
+  const saved = JSON.parse(localStorage.getItem("students") || "[]");
+  tableBody.innerHTML = "";
+  saved.forEach(student => {
+    addRow(student.id, student.name, student.grade, student.section, false);
+    if (student.id >= studentId) studentId = student.id + 1;
+  });
+});
 
-  // Load saved students when page loads
-  window.addEventListener("DOMContentLoaded", () => {
-    const saved = JSON.parse(localStorage.getItem("students") || "[]");
-    saved.forEach(student => {
-      addRow(student.id, student.name, student.grade, student.section);
+function saveStudents() {
+  const rows = document.querySelectorAll("#studentTableBody tr");
+  const students = [];
+  rows.forEach(row => {
+    students.push({
+      id: parseInt(row.children[0].textContent),
+      name: row.children[1].textContent,
+      grade: row.children[2].textContent,
+      section: row.children[3].textContent
     });
-    if (saved.length > 0) {
-      studentId = Math.max(...saved.map(s => s.id)) + 1;
+  });
+  localStorage.setItem("students", JSON.stringify(students));
+}
+
+function addRow(id, name, grade, section, save = true) {
+  const row = document.createElement("tr");
+  row.innerHTML = `
+    <td>${id}</td>
+    <td>${name}</td>
+    <td>${grade}</td>
+    <td>${section}</td>
+    <td class="actions">
+      <a class="edit">Edit</a>
+      <a class="delete">Delete</a>
+    </td>
+  `;
+  tableBody.appendChild(row);
+
+  row.querySelector(".edit").addEventListener("click", () => {
+    const newName = prompt("Edit name:", row.children[1].textContent);
+    const newGrade = prompt("Edit grade:", row.children[2].textContent);
+    const newSection = prompt("Edit section:", row.children[3].textContent);
+    if (newName && newGrade && newSection) {
+      row.children[1].textContent = newName;
+      row.children[2].textContent = newGrade;
+      row.children[3].textContent = newSection;
+      saveStudents();
     }
   });
 
-  addStudentBtn.addEventListener("click", () => {
-    const name = prompt("Enter student's name:");
-    const grade = prompt("Enter grade:");
-    const section = prompt("Enter section:");
-
-    if (!name || !grade || !section) return alert("All fields are required!");
-
-    const newStudent = { id: studentId, name, grade, section };
-    addRow(newStudent.id, name, grade, section);
-    saveStudent(newStudent);
-    studentId++;
+  row.querySelector(".delete").addEventListener("click", () => {
+    if (confirm("Delete this student?")) {
+      row.remove();
+      saveStudents();
+    }
   });
 
-  function addRow(id, name, grade, section) {
-    const row = document.createElement("tr");
-    row.innerHTML = `
-      <td>${id}</td>
-      <td>${name}</td>
-      <td>${grade}</td>
-      <td>${section}</td>
-      <td class="actions">
-        <a class="edit">Edit</a>
-        <a class="delete">Delete</a>
-      </td>
-    `;
-    studentTable.appendChild(row);
-    attachActions(row);
-  }
+  if (save) saveStudents();
+}
 
-  function saveStudent(student) {
-    const students = JSON.parse(localStorage.getItem("students") || "[]");
-    students.push(student);
-    localStorage.setItem("students", JSON.stringify(students));
-  }
-
-  function updateStudent(updatedStudent) {
-    const students = JSON.parse(localStorage.getItem("students") || "[]");
-    const index = students.findIndex(s => s.id === updatedStudent.id);
-    if (index !== -1) {
-      students[index] = updatedStudent;
-      localStorage.setItem("students", JSON.stringify(students));
-    }
-  }
-
-  function deleteStudent(id) {
-    let students = JSON.parse(localStorage.getItem("students") || "[]");
-    students = students.filter(s => s.id !== id);
-    localStorage.setItem("students", JSON.stringify(students));
-  }
-
-  function attachActions(row) {
-    const editBtn = row.querySelector(".edit");
-    const deleteBtn = row.querySelector(".delete");
-
-    editBtn.addEventListener("click", () => {
-      const id = parseInt(row.children[0].textContent);
-      const name = prompt("Edit name:", row.children[1].textContent);
-      const grade = prompt("Edit grade:", row.children[2].textContent);
-      const section = prompt("Edit section:", row.children[3].textContent);
-
-      if (name && grade && section) {
-        row.children[1].textContent = name;
-        row.children[2].textContent = grade;
-        row.children[3].textContent = section;
-
-        updateStudent({ id, name, grade, section });
-      }
-    });
-
-    deleteBtn.addEventListener("click", () => {
-      if (confirm("Delete this student?")) {
-        const id = parseInt(row.children[0].textContent);
-        row.remove();
-        deleteStudent(id);
-      }
-    });
-  }
+addBtn.addEventListener("click", () => {
+  const name = prompt("Enter student's name:");
+  const grade = prompt("Enter grade:");
+  const section = prompt("Enter section:");
+  if (!name || !grade || !section) return alert("All fields required.");
+  addRow(studentId++, name, grade, section);
+});
 </script>
 
 </body>
